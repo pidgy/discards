@@ -17,13 +17,10 @@ func main() {
 	}
 	options.APIKey = string(key)
 
-	go battle.Load()
-
 	fmt.Printf("Starting discards server at port 8080\n")
 
-	http.HandleFunc("/battle", decks)
-	http.HandleFunc("/hero", hero)
 	http.HandleFunc("/card", card)
+	http.HandleFunc("/sets", sets)
 
 	err = http.ListenAndServe("localhost:8080", nil)
 	if err != nil {
@@ -58,8 +55,8 @@ func card(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func decks(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/battle" {
+func sets(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/sets" {
 		http.Error(w, "404 not found.", http.StatusNotFound)
 		return
 	}
@@ -69,25 +66,15 @@ func decks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	name := r.URL.Query().Get("name")
-	if name == "" {
-		http.Error(w, "Missing name in query.", http.StatusBadRequest)
-		return
-	}
-
-	b := &battle.Battle{}
-	err := b.Get(name)
+	s := &battle.Sets{}
+	err := s.Get()
 	if err != nil {
-		http.Error(w, "Failed to find battle deck with name \""+name+"\".", http.StatusInternalServerError)
-		return
+		panic(err)
 	}
 
-	err = json.NewEncoder(w).Encode(b)
+	err = json.NewEncoder(w).Encode(s)
 	if err != nil {
 		http.Error(w, "Failed to send encoded data.", http.StatusInternalServerError)
 		return
 	}
-}
-
-func hero(w http.ResponseWriter, r *http.Request) {
 }

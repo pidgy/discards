@@ -1,0 +1,5 @@
+.api
+.vscode
+*.exe
+www
+cache

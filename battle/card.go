@@ -5,69 +5,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"math/rand"
+	"math/big"
 	"net/http"
 	"strconv"
 
+	"github.com/pidgy/discards/battle/api"
 	"github.com/pidgy/discards/options"
+
+	crypto "crypto/rand"
+	math "math/rand"
 )
-
-type Card struct {
-	Data `json:"data"`
-}
-
-type Attack struct {
-	Name                string
-	Cost                []string
-	ConvertedEnergyCost int
-	Damage              string
-	Text                string
-}
-
-type Weakness struct {
-	Type  string
-	Value string
-}
-
-type Set struct {
-	ID           string
-	Name         string
-	Series       string
-	PrintedTotal int
-	Total        int
-	Legalities   map[string]string
-	PtcgoCode    string
-	ReleaseDate  string
-	UpdatedAt    string
-	Images       map[string]string
-}
-
-type Data struct {
-	ID                   string
-	Name                 string
-	Supertype            string
-	Subtypes             []string
-	HP                   string
-	Types                []string
-	EvolvesFrom          string
-	Rules                []string
-	Attacks              []Attack
-	Weaknesses           []Weakness
-	RetreatCost          []string
-	ConvertedRetreatCost int
-	Set
-	Number                 string
-	Artist                 string
-	Rarity                 string
-	NationalPokedexNumbers []int
-	Legalities             map[string]string
-	RegulationMark         string
-	Images                 map[string]string
-}
 
 const (
 	uriCards = "https://api.pokemontcg.io/v2/cards/"
 )
+
+type Card api.Card
 
 func (c *Card) Get(id string) error {
 	if id == "" {
@@ -140,17 +93,27 @@ func (c *Card) random() error {
 	}
 
 	i := 0
-	r := rand.Intn(len(s.Data))
+
+	r := rand(len(s.Data))
 
 	prefix, postfix := "", ""
 
 	for _, set := range s.Data {
 		if i == r {
 			prefix = set.ID
-			postfix = strconv.Itoa(rand.Intn(set.Total))
+			postfix = strconv.Itoa(rand(set.Total))
 		}
 		i++
 	}
 
 	return c.Get(prefix + "-" + postfix)
+}
+
+func rand(max int) int {
+	b, err := crypto.Int(crypto.Reader, big.NewInt(int64(max)))
+	if err != nil {
+		return math.Intn(max)
+	}
+
+	return int(b.Int64())
 }

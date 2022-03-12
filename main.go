@@ -44,12 +44,14 @@ func card(w http.ResponseWriter, r *http.Request) {
 	c := &battle.Card{}
 	err := c.Get(id)
 	if err != nil {
-		http.Error(w, "Failed to find card with id \""+id+"\".", http.StatusInternalServerError)
+		fmt.Printf("%v\n", err)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
 	err = json.NewEncoder(w).Encode(c)
 	if err != nil {
+		fmt.Printf("%v\n", err)
 		http.Error(w, "Failed to send encoded data.", http.StatusInternalServerError)
 		return
 	}

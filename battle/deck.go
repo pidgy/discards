@@ -5,12 +5,11 @@ import (
 	"encoding/json"
 	"io"
 	"os"
+
+	"github.com/pidgy/discards/battle/api"
 )
 
-type Deck struct {
-	Name  string
-	Cards []*Card
-}
+type Deck api.Deck
 
 type file struct {
 	Name  string   `json:"name"`
@@ -39,13 +38,13 @@ func (d *Deck) Get(name string) error {
 	}
 
 	for _, id := range file.Cards {
-		c := &Card{}
+		c := Card{}
 		err := c.Get(id)
 		if err != nil {
 			return err
 		}
 
-		d.Cards = append(d.Cards, c)
+		d.Cards = append(d.Cards, api.Card(c))
 	}
 
 	d.Name = file.Name

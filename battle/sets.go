@@ -7,22 +7,15 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/pidgy/discards/battle/api"
 	"github.com/pidgy/discards/options"
 )
-
-type Sets struct {
-	Data []SetData `json:"data"`
-}
-
-type SetData struct {
-	ID    string
-	Name  string
-	Total int
-}
 
 const (
 	uriSets = "https://api.pokemontcg.io/v2/sets"
 )
+
+type Sets api.Sets
 
 func (s *Sets) Get() error {
 	buf, err := database.sets.read("sets")

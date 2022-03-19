@@ -2,40 +2,48 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
+	"time"
+
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 
 	"github.com/pidgy/discards/battle"
 	"github.com/pidgy/discards/options"
 )
 
 func main() {
+	log.Logger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.Stamp}).With().Timestamp().Logger()
+
 	key, err := os.ReadFile(".api")
 	if err != nil {
 		panic(err)
 	}
 	options.APIKey = string(key)
 
-	fmt.Printf("Starting discards server at port 8080\n")
+	addr := "localhost:8080"
+
+	log.Info().Str("addr", addr).Msg("discards server started")
 
 	http.HandleFunc("/card", card)
 	http.HandleFunc("/sets", sets)
 
-	err = http.ListenAndServe("localhost:8080", nil)
+	err = http.ListenAndServe(addr, nil)
 	if err != nil {
 		panic(err)
 	}
 }
 
 func card(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/card" {
-		http.Error(w, "404 not found.", http.StatusNotFound)
-		return
-	}
+	log.Info().Str("from", r.RemoteAddr).Str("type", "request").Msg(r.RequestURI)
+
+	final := log.Info().Str("from", r.RemoteAddr).Str("type", "response")
+	defer final.Msg(r.RequestURI)
 
 	if r.Method != "GET" {
-		http.Error(w, "Method is not supported.", http.StatusNotFound)
+		final.Int("status", http.StatusNotFound)
+		http.Error(w, "method is not supported.", http.StatusNotFound)
 		return
 	}
 
@@ -44,39 +52,44 @@ func card(w http.ResponseWriter, r *http.Request) {
 	c := &battle.Card{}
 	err := c.Get(id)
 	if err != nil {
-		fmt.Printf("%v\n", err)
-		w.WriteHeader(http.StatusNotFound)
+		final.Err(err).Int("status", http.StatusNotFound)
+		http.Error(w, "failed to find a card with id: "+id, http.StatusNotFound)
 		return
 	}
 
+	final.Str("card", c.Name)
+
 	err = json.NewEncoder(w).Encode(c)
 	if err != nil {
-		fmt.Printf("%v\n", err)
-		http.Error(w, "Failed to send encoded data.", http.StatusInternalServerError)
+		final.Err(err).Int("status", http.StatusInternalServerError)
+		http.Error(w, "failed to send encoded card: "+id, http.StatusInternalServerError)
 		return
 	}
 }
 
 func sets(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/sets" {
-		http.Error(w, "404 not found.", http.StatusNotFound)
-		return
-	}
+	log.Info().Str("from", r.RemoteAddr).Msg(r.RequestURI)
+
+	final := log.Info().Str("from", r.RemoteAddr)
+	defer final.Msg(r.RequestURI)
 
 	if r.Method != "GET" {
-		http.Error(w, "Method is not supported.", http.StatusNotFound)
+		final.Int("status", http.StatusNotFound)
+		http.Error(w, "method is not supported.", http.StatusNotFound)
 		return
 	}
 
 	s := &battle.Sets{}
 	err := s.Get()
 	if err != nil {
-		panic(err)
+		final.Err(err).Int("status", http.StatusNotFound)
+		http.Error(w, "failed to find any sets", http.StatusNotFound)
 	}
 
 	err = json.NewEncoder(w).Encode(s)
 	if err != nil {
-		http.Error(w, "Failed to send encoded data.", http.StatusInternalServerError)
+		final.Err(err).Int("status", http.StatusInternalServerError)
+		http.Error(w, "failed to send encoded sets.", http.StatusInternalServerError)
 		return
 	}
 }

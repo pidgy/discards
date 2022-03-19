@@ -7,8 +7,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/pidgy/discards/battle/api"
 	"github.com/pidgy/discards/options"
+	"github.com/pidgy/discardsapi/api"
 )
 
 const (
@@ -52,10 +52,6 @@ func (s *Sets) Get() error {
 	return database.sets.write(s)
 }
 
-func (s *Sets) id() string {
-	return "all"
-}
-
 func (s *Sets) decode(r io.Reader) error {
 	err := json.NewDecoder(r).Decode(s)
 	if err != nil {
@@ -74,4 +70,8 @@ func (s *Sets) encode() ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
+}
+
+func (s *Sets) id() string {
+	return "all"
 }

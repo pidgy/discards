@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/pidgy/discards/battle/api"
+	"github.com/pidgy/discardsapi/api"
 )
 
 type Deck api.Deck

@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/pidgy/discards/battle/api"
 	"github.com/pidgy/discards/options"
+	"github.com/pidgy/discardsapi/api"
 
 	crypto "crypto/rand"
 	math "math/rand"
@@ -61,10 +61,6 @@ func (c *Card) Get(id string) error {
 	return database.cards.write(c)
 }
 
-func (c *Card) id() string {
-	return c.ID
-}
-
 func (c *Card) decode(r io.Reader) error {
 	err := json.NewDecoder(r).Decode(c)
 	if err != nil {
@@ -83,6 +79,10 @@ func (c *Card) encode() ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
+}
+
+func (c *Card) id() string {
+	return c.ID
 }
 
 func (c *Card) random() error {

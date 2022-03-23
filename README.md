@@ -8,7 +8,7 @@ pokemontcg.io data caching server
 ```
 git clone https://github.com/pidgy/discards.git
 cd discards
-cat <pokemontcg.io-api-key> > .api
+cat <pokemontcg.io-api-key> .api
 go run main.go
 ```
 

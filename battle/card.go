@@ -8,12 +8,14 @@ import (
 	"math/big"
 	"net/http"
 	"strconv"
+	"time"
 
-	"github.com/pidgy/discards/options"
+	randc "crypto/rand"
+	randm "math/rand"
+
 	"github.com/pidgy/discardsapi/api"
 
-	crypto "crypto/rand"
-	math "math/rand"
+	"github.com/pidgy/discards/options"
 )
 
 const (
@@ -110,9 +112,10 @@ func (c *Card) random() error {
 }
 
 func rand(max int) int {
-	b, err := crypto.Int(crypto.Reader, big.NewInt(int64(max)))
+	b, err := randc.Int(randc.Reader, big.NewInt(int64(max)))
 	if err != nil {
-		return math.Intn(max)
+		randm.Seed(time.Now().UnixNano())
+		return randm.Intn(max)
 	}
 
 	return int(b.Int64())

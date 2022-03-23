@@ -7,8 +7,9 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/pidgy/discards/options"
 	"github.com/pidgy/discardsapi/api"
+
+	"github.com/pidgy/discards/options"
 )
 
 const (

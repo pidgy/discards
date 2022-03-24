@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"net/http"
 	"os"
 	"time"
@@ -14,9 +15,12 @@ import (
 )
 
 func main() {
+	api := flag.String("api", ".api", "path to api key file")
+	flag.Parse()
+
 	log.Logger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.Stamp}).With().Timestamp().Logger()
 
-	key, err := os.ReadFile(".api")
+	key, err := os.ReadFile(*api)
 	if err != nil {
 		panic(err)
 	}

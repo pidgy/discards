@@ -18,9 +18,7 @@ import (
 	"github.com/pidgy/discards/options"
 )
 
-const (
-	uriCards = "https://api.pokemontcg.io/v2/cards/"
-)
+const uriCards = "https://api.pokemontcg.io/v2/cards/"
 
 type Card api.Card
 

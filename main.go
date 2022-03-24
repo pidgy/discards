@@ -5,6 +5,7 @@ import (
 	"flag"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -24,7 +25,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	options.APIKey = string(key)
+	options.APIKey = strings.ReplaceAll(string(key), "\\n", "")
 
 	addr := "localhost:8080"
 
